@@ -1,0 +1,78 @@
+# OS generated files #
+######################
+.DS_Store
+Thumbs.db
+
+# User-specific files #
+#######################
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Auto-generated files #
+########################
+*.log
+*.tlog
+*.vspscc
+*.vssscc
+
+# Build Folders #
+##################
+bin/
+obj/
+out/
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+
+# Visual Studio and VS Code #
+#############################
+.vscode/
+.vs/
+.idea/
+
+# ASP.NET Scaffolding #
+#######################
+ScaffoldingReadMe.txt
+
+# DotNet and NuGet #
+####################
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.nupkg
+*.snupkg
+*.nuspec
+*.dll
+*.exe
+*.db
+
+# Rider #
+#########
+.idea/
+*.sln.iml
+.idea/
+
+# Configuration files #
+#######################
+appsettings.Development.json
+appsettings.*.json
+secrets.json
+
+# Docker #
+##########
+**/[Dd]ockerfile
+**/[Dd]ockerignore
+
+# macOS files #
+###############
+.DS_Store
+
+# Node modules (for frontend later) #
+####################################
+node_modules/
