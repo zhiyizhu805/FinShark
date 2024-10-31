@@ -7,7 +7,8 @@ using api.Dtos.Stock;
 using api.Mappers;
 using Microsoft.AspNetCore.Mvc;
 
-
+//what's different between firstOrDefault or find? why in delete we should use firstordefault?
+//when you do delete, return NoContent() is a success?
 namespace api.Controllers
 {
     [Route("api/stock")]
@@ -70,6 +71,20 @@ namespace api.Controllers
 
         }
 
+        [HttpDelete]
+        [Route("{id}")]
+        public IActionResult Delete([FromRoute] int id)
+        {
+            var stockModel = _context.Stocks.FirstOrDefault(x => x.Id == id);
+            if(stockModel == null)
+            {
+                return NotFound();
+            }
+            _context.Stocks.Remove(stockModel);
+            _context.SaveChanges();
+            return NoContent();
+        }
+
 
     }
 }
@@ -103,4 +118,11 @@ NotFound():
 
 Returns HTTP 404, indicating the item wasn’t found in the database, commonly used when Find returns null.
 
+
+****************************************************
+Find: Use when searching by primary key; it's optimized with caching in Entity Framework.
+
+FirstOrDefault: Ideal for custom queries (not just primary keys) and is often used in deletes for flexibility in conditions.
+
+NoContent(): Returns HTTP 204, signaling a successful DELETE without any data.
 */
