@@ -6,9 +6,8 @@ using api.Data;
 using api.Dtos.Stock;
 using api.Mappers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-//what's different between firstOrDefault or find? why in delete we should use firstordefault?
-//when you do delete, return NoContent() is a success?
 namespace api.Controllers
 {
     [Route("api/stock")]
@@ -22,17 +21,19 @@ namespace api.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var stocks = _context.Stocks.ToList().Select(s => s.ToStokeDto());
+            var stocks = await _context.Stocks.ToListAsync();
+            //below code doesnt go into db so its fine not making it async
+            var stockDto = stocks.Select(s => s.ToStokeDto());
             //Select will return an immutable array/list
-            return Ok(stocks);
+            return Ok(stockDto);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById([FromRoute] int id)
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            var stock = _context.Stocks.Find(id);
+            var stock = await _context.Stocks.FindAsync(id);
 
             if (stock == null)
             {
@@ -43,17 +44,17 @@ namespace api.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] CreateStockRequestDto stockDto)
+        public async Task<IActionResult> Create([FromBody] CreateStockRequestDto stockDto)
         {
             var stockModel = stockDto.ToStockFromStockDto();
-            _context.Stocks.Add(stockModel);
-            _context.SaveChanges();
+            await _context.Stocks.AddAsync(stockModel);
+            await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetById), new { id = stockModel.Id}, stockModel.ToStokeDto());
         }
 
         [HttpPut]
         [Route("{id}")]
-        public IActionResult Update([FromRoute] int id, [FromBody] UpdateStockRequestDto updateDto)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateStockRequestDto updateDto)
         {
             var stockModel = _context.Stocks.FirstOrDefault(x => x.Id == id);
             if (stockModel == null)
@@ -66,22 +67,23 @@ namespace api.Controllers
             stockModel.LastDiv = updateDto.LastDiv;
             stockModel.Industry = updateDto.Industry;
             stockModel.MarketCap = updateDto.MarketCap;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return Ok(stockModel.ToStokeDto());
 
         }
 
         [HttpDelete]
         [Route("{id}")]
-        public IActionResult Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
             var stockModel = _context.Stocks.FirstOrDefault(x => x.Id == id);
             if(stockModel == null)
             {
                 return NotFound();
             }
+            //no need to add Async adding to a remove method. why?
             _context.Stocks.Remove(stockModel);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
@@ -125,4 +127,21 @@ Find: Use when searching by primary key; it's optimized with caching in Entity F
 FirstOrDefault: Ideal for custom queries (not just primary keys) and is often used in deletes for flexibility in conditions.
 
 NoContent(): Returns HTTP 204, signaling a successful DELETE without any data.
+
+
+
+***********************************************************
+
+When to Use Asynchronous:
+
+Use async for tasks that are slow or involve external systems (like databases or network calls). This approach allows other code to run without waiting for the slow operation to complete.
+How to Implement Asynchronous in .NET:
+
+1.async keyword: Marks a method as asynchronous, enabling the use of await within it.
+2.await keyword: Although it seems to "wait," await actually releases the thread, allowing other code (including other requests) to be handled on available threads. When the awaited task completes, the method resumes execution without causing a blocking delay.
+3.Return Task or Task<returnType>: Represents an operation in progress. Use Task if there’s no return value, and Task<returnType> if returning a result.
+4.Async Suffix: Add "Async" to asynchronous method names as a convention (e.g., ToListAsync).
+Example Workflow:
+
+For database calls, use await with methods like ToListAsync() or SaveChangesAsync() to keep the application responsive, as these calls don’t block the thread and allow other requests to proceed.
 */
