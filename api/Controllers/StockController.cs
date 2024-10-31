@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Data;
+using api.Mappers;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -21,7 +22,8 @@ namespace api.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var stocks = _context.Stocks.ToList();
+            var stocks = _context.Stocks.ToList().Select(s => s.ToStokeDto());
+            //Select will return an immutable array/list
             return Ok(stocks);
         }
 
@@ -35,7 +37,7 @@ namespace api.Controllers
                 return NotFound(); 
             }
 
-            return Ok(stock);
+            return Ok(stock.ToStokeDto());
         }
 
 
@@ -43,6 +45,16 @@ namespace api.Controllers
 }
 
 /*
+Steps to create Dtos and use Mapper to map the model class to a Dto class:
+1. Create DTO for a Model Class:
+   - Define a Data Transfer Object (DTO) class with properties that match or are derived from those in the model class.
+   -This class usually has only the necessary fields for data transfer and may exclude sensitive or unnecessary data.
+2. Create Mapper as an Extension Method for the Model Class:
+   - Write a static extension method in a separate static class (e.g., StockMappers) to map the model to the DTO.
+   - Use this ModelType model as the first parameter to create an extension method, allowing you to call it directly on instances of the model class.
+3. Map the Model to DTO in the Controller:
+   - In the controller, when you retrieve a model instance (e.g., Stock), call the extension method (e.g., stock.ToStockDto()) to map the model to a DTO before returning it.
+********************************************************************
 ControllerBase and IActionResult:
 
 ControllerBase is a lightweight base class for API controllers in ASP.NET Core, providing core HTTP response methods.
