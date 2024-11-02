@@ -65,21 +65,6 @@ Error 2: Mismatched method signatures between the interface and implementation c
 
 
 **********************************************************
-Steps to Implement a One-to-Many Relationship:
-
-To include related data (e.g., Commnent in Stock/CommentDto in StockDto), you followed these steps:
-
-1.Define the Relationship in the Parent Model: Add public List<Comment> Comments { get; set; } = new List<Comment>(); to Stock to establish the one-to-many relationship with Comment. Additionally, in the Comment model, add public int? StockID { get; set; } as a foreign key and public Stock? Stock { get; set; } to link back to the parent Stock.
-
-2.Add Related Data in the DTO Class: In StockDto, add a List<CommentDto> property to represent the comments in the data transfer object.
-
-3.Map the Relationship in a Mapper Class: In ToStockDto within StockMappers, use .Select(c => c.ToCommentDto()).ToList() to convert each Comment to CommentDto.
-
-4.Eagerly Load Related Entities in Repository: Use .Include(s => s.Comments) in StockRepository to load comments with each Stock query, reducing additional queries and improving performance.
-
-5.Install Newstonsoft.Json and Microsoft.AspNetCore.Mvc.NewtonsoftJson and add that to the registered service to prevent object cycles
-
-6.Prevent Object Cycles: In Program.cs, configure JSON serialization with ReferenceLoopHandling.Ignore to prevent serialization issues due to circular references.
 
 
 
