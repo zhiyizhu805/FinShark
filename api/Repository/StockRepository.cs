@@ -41,12 +41,14 @@ namespace api.Repository
 
         public Task<List<Stock>> GetAllAsync()
         {
-            return  _context.Stocks.ToListAsync();
+            // I dont understand the include here,what does's => s.Comments' mean ,what the result will be??
+            return  _context.Stocks.Include(s => s.Comments).ToListAsync();
         }
 
         public async Task<Stock?> GetByIdAsync(int id)
         {
-            return await _context.Stocks.FindAsync(id);
+            //FindAsync doesn't work with Include method,so change to FirstOrDefault()
+            return await _context.Stocks.Include(s => s.Comments).FirstOrDefaultAsync(i => i.Id == id);
         }
 
         public async Task<Stock?> UpdateAsync(int id, UpdateStockRequestDto updateDto)
