@@ -31,7 +31,7 @@ namespace api.Controllers
 
         }
 
-        [HttpGet("{commentId}")]
+        [HttpGet("{commentId:int}")]
         public async Task<IActionResult> GetById([FromRoute] int commentId)
         {
             var commentModel = await _commentRepo.GetByIdAsync(commentId);
@@ -42,7 +42,7 @@ namespace api.Controllers
             return Ok(commentModel.ToCommentDto());
         }
 
-        [HttpPost("{stockId}")]
+        [HttpPost("{stockId:int}")]
         public async Task<IActionResult> Create([FromRoute] int stockId,[FromBody] CreateCommentRequestDto commentDto)
         {
             if(!await _stockRepo.StockExit(stockId))
@@ -55,7 +55,7 @@ namespace api.Controllers
 
         }
 
-        [HttpPut("{commentId}")]
+        [HttpPut("{commentId:int}")]
         public async Task<IActionResult> Update([FromRoute] int commentId, [FromBody] UpdateCommentRequestDto updateCommentDto)
         {
             //remember to pass Comment type to UpdateAsync method.
@@ -68,7 +68,7 @@ namespace api.Controllers
 
         }
 
-        [HttpDelete("{commentId}")]
+        [HttpDelete("{commentId:int}")]
         public async Task<IActionResult> Delete([FromRoute] int commentId)
         {
             var commentModel = await _commentRepo.DeleteAsync(commentId);
@@ -82,6 +82,9 @@ namespace api.Controllers
 }
 
 /*
+********************************************************************
+Data Validation:
+1. Ensure route parameters have specified data types (e.g., commentId:int) for validation and error prevention.
 
 ********************************************************************
 >>>> Steps to Implement a One-to-Many Relationship and HttpGet:
