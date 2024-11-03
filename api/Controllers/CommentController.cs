@@ -94,9 +94,10 @@ namespace api.Controllers
 /*
 ********************************************************************
 Data Validation:
+1. Add data validation to route parameters
+Ensure route parameters have specified data types (e.g., commentId:int) for validation and error prevention.
 
-1. Ensure route parameters have specified data types (e.g., commentId:int) for validation and error prevention.
-
+2.How to add data validation in Dto:
 2.1 Add data validation in Dto(eg. updateDto or createDto that need to receive data).（Dont directly add data validation in models as it will apply globally.）
 2.2 In controller, explictly tell each route to use data annotation:            if(!ModelState.IsValid) return BadRequest(ModelState);
 ********************************************************************
