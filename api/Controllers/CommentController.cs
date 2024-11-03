@@ -25,6 +25,8 @@ namespace api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
+            if(!ModelState.IsValid) 
+                return BadRequest(ModelState);
             var comments = await _commentRepo.GetAllAsync();
             var CommentsDto = comments.Select(s => s.ToCommentDto());
             return Ok(CommentsDto);
@@ -34,6 +36,8 @@ namespace api.Controllers
         [HttpGet("{commentId:int}")]
         public async Task<IActionResult> GetById([FromRoute] int commentId)
         {
+            if(!ModelState.IsValid) // this is inherited from ControllerBase
+                return BadRequest(ModelState);
             var commentModel = await _commentRepo.GetByIdAsync(commentId);
             if (commentModel == null)
             {
@@ -45,6 +49,8 @@ namespace api.Controllers
         [HttpPost("{stockId:int}")]
         public async Task<IActionResult> Create([FromRoute] int stockId,[FromBody] CreateCommentRequestDto commentDto)
         {
+            if(!ModelState.IsValid) 
+                return BadRequest(ModelState);
             if(!await _stockRepo.StockExit(stockId))
             {
                 return BadRequest("No stock found.");
@@ -58,6 +64,8 @@ namespace api.Controllers
         [HttpPut("{commentId:int}")]
         public async Task<IActionResult> Update([FromRoute] int commentId, [FromBody] UpdateCommentRequestDto updateCommentDto)
         {
+            if(!ModelState.IsValid) 
+                return BadRequest(ModelState);
             //remember to pass Comment type to UpdateAsync method.
             var commentModel = await _commentRepo.UpdateAsync(commentId,updateCommentDto.ToCommentFromUpdate());
             if (commentModel == null)
@@ -71,6 +79,8 @@ namespace api.Controllers
         [HttpDelete("{commentId:int}")]
         public async Task<IActionResult> Delete([FromRoute] int commentId)
         {
+            if(!ModelState.IsValid) 
+                return BadRequest(ModelState);
             var commentModel = await _commentRepo.DeleteAsync(commentId);
             if (commentModel == null)
             {
@@ -84,8 +94,11 @@ namespace api.Controllers
 /*
 ********************************************************************
 Data Validation:
+
 1. Ensure route parameters have specified data types (e.g., commentId:int) for validation and error prevention.
 
+2.1 Add data validation in Dto(eg. updateDto or createDto that need to receive data).（Dont directly add data validation in models as it will apply globally.）
+2.2 In controller, explictly tell each route to use data annotation:            if(!ModelState.IsValid) return BadRequest(ModelState);
 ********************************************************************
 >>>> Steps to Implement a One-to-Many Relationship and HttpGet:
 
