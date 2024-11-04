@@ -56,7 +56,7 @@ namespace api.Controllers
                 return BadRequest("No stock found.");
             }
             var commentModel = await _commentRepo.CreateAsync(commentDto.ToCommentFromCreate(stockId));
-            return CreatedAtAction(nameof(GetById), new {id = commentModel.Id}, commentModel.ToCommentDto());
+            return CreatedAtAction(nameof(GetById), new {commentId = commentModel.Id}, commentModel.ToCommentDto());
 
 
         }
