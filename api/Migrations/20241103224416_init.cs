@@ -12,7 +12,7 @@ namespace api.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Stock",
+                name: "Stocks",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -26,11 +26,11 @@ namespace api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Stock", x => x.Id);
+                    table.PrimaryKey("PK_Stocks", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Comment",
+                name: "Comments",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -42,17 +42,17 @@ namespace api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Comment", x => x.Id);
+                    table.PrimaryKey("PK_Comments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Comment_Stock_StockID",
+                        name: "FK_Comments_Stocks_StockID",
                         column: x => x.StockID,
-                        principalTable: "Stock",
+                        principalTable: "Stocks",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Comment_StockID",
-                table: "Comment",
+                name: "IX_Comments_StockID",
+                table: "Comments",
                 column: "StockID");
         }
 
@@ -60,10 +60,10 @@ namespace api.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Comment");
+                name: "Comments");
 
             migrationBuilder.DropTable(
-                name: "Stock");
+                name: "Stocks");
         }
     }
 }
