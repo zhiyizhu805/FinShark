@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Dtos.Stock;
+using api.Helpers;
 using api.Interfaces;
 using api.Mappers;
 using api.Repository;
@@ -23,11 +24,11 @@ namespace api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
         {
             if(!ModelState.IsValid) 
                 return BadRequest(ModelState);
-            var stocks = await _stockRepo.GetAllAsync();
+            var stocks = await _stockRepo.GetAllAsync(query);
             var stockDto = stocks.Select(s => s.ToStokeDto());
             return Ok(stockDto);
         }
@@ -91,6 +92,44 @@ namespace api.Controllers
 }
 
 /*
+********************************************************************
+
+How to use query(QueryObejct) to filter data in database?
+1.add Helper/QueryObject.cs and add parameters to QueryObejct.cs
+2.in StockController.cs, add QueryObject query to GetAllAsync() as a passed in parameter
+3.add QueryObject query to GetAllAsync() in IStockObject interface
+4.implement this in StockRepository:
+        origin: return  _context.Stocks.Include(s => s.Comments).ToListAsync();
+        after:  var stocks = _context.Stocks.Include(s => s.Comments).AsQueryable();
+   Instead of calling .ToListAsync(), we call .AsQueryable() here.
+   then we start form the query structure
+   4.1. check if input is empty by string.IsNullOrWhiteSpace()
+   4.2. use linq to form our query structure? 
+        after: stocks = stocks.Where(s => s.CompanyName.Contains(query.CompanyName));
+   4.3. finally fire the sql query to db by calling .ToListAsync(), we dont need to use asynchronos in previous execution as forming query structure does not interact with db.
+        after: return await stocks.ToListAsync();
+
+***
+
+.AsQueryable() and .ToList()
+
+When retrieving data from a database in .NET, you often want it in the form of a list, which makes ToList() a common method. ToList() is essential because it triggers the execution of the SQL query, sending it to the database and bringing back the data.
+
+Using .AsQueryable() can defer the execution of the SQL query, allowing you to apply filters, limits, and other modifications before sending the query to the database. With .AsQueryable(), the query is only constructed but not yet executed. Once you’re ready to retrieve the data, calling ToList() finalizes and executes the SQL, returning the filtered data.
+
+This approach can improve performance, as it ensures only the necessary data is retrieved from the database.
+
+******
+
+How to do sorting (descending and ascending)?
+1. based on previous content, add SortBy and IsDescending parameters in Helpers/QueryObject.cs
+2. in StockRepository, add logic:
+    if(query.SortBy.Equals("Symbol", StringComparison.OrdinalIgnoreCase)) 
+        {
+            stocks = query.IsDescending? stocks.OrderByDescending(s=>s.Symbol) : stocks.OrderBy(s=>s.Symbol);
+        }
+
+********************************************************************
 Steps to create Dtos and use Mapper to map the model class to a Dto class:
 1. Create DTO for a Model Class:
    - Define a Data Transfer Object (DTO) class with properties that match or are derived from those in the model class.

@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.Data;
 using api.Dtos.Stock;
+using api.Helpers;
 using api.Interfaces;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 
 namespace api.Repository
@@ -39,9 +41,35 @@ namespace api.Repository
             return stockModel;
         }
 
-        public Task<List<Stock>> GetAllAsync()
+        public async Task<List<Stock>> GetAllAsync(QueryObject query)
         {
-            return  _context.Stocks.Include(s => s.Comments).ToListAsync();
+            // return  _context.Stocks.Include(s => s.Comments).ToListAsync();
+              var stocks = _context.Stocks.Include(s => s.Comments).AsQueryable();
+              if (!string.IsNullOrWhiteSpace(query.CompanyName))
+              {
+                   stocks = stocks.Where(s => s.CompanyName.Contains(query.CompanyName));
+              }
+              
+              if (!string.IsNullOrWhiteSpace(query.Symbol))
+              {
+                  stocks = stocks.Where(s => s.Symbol.Contains(query.Symbol));
+              }
+
+              if (!string.IsNullOrWhiteSpace(query.SortBy))
+              {
+                //.Equals() can take one parameter for default equality or two parameters to specify a comparison type, like case-insensitive matching with StringComparison.OrdinalIgnoreCase.
+                //StringComparison.OrdinalIgnoreCase is used to make the comparison case-insensitive, meaning it will match "symbol", "SYMBOL", or any other case variation.
+                if(query.SortBy.Equals("Symbol", StringComparison.OrdinalIgnoreCase)) 
+                {
+                    stocks = query.IsDescending? stocks.OrderByDescending(s=>s.Symbol) : stocks.OrderBy(s=>s.Symbol);
+                }
+              }
+
+              var skipNumber = (query.PageNumber - 1) * query.PageSize;
+              
+              return await stocks.Skip(skipNumber).Take(query.PageSize).ToListAsync();
+            //   return await stocks.ToListAsync();
+
         }
 
         public async Task<Stock?> GetByIdAsync(int id)
