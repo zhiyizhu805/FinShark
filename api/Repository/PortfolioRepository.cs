@@ -17,6 +17,14 @@ namespace api.Repository
             _context = context;
             
         }
+
+        public async Task<Portfolio> CreateAsync(Portfolio portfolio)
+        {
+            await _context.Portfolios.AddAsync(portfolio);
+            await _context.SaveChangesAsync();
+            return portfolio;
+        }
+
         public async Task<List<Stock>> GetUserPortfolio(AppUser user)
         //This method filters Portfolio entries for the current user, pulls StockId values, and retrieves Stock details through navigation properties, building a list of stock objects.
         {
