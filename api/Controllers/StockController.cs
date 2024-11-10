@@ -29,7 +29,7 @@ namespace api.Controllers
             if(!ModelState.IsValid) 
                 return BadRequest(ModelState);
             var stocks = await _stockRepo.GetAllAsync(query);
-            var stockDto = stocks.Select(s => s.ToStokeDto());
+            var stockDto = stocks.Select(s => s.ToStokeDto()).ToList();
             return Ok(stockDto);
         }
 

@@ -18,6 +18,7 @@ namespace api.Mappers
                 Content = commentModel.Content,
                 CreateOn = commentModel.CreateOn,
                 StockID = commentModel.StockID,
+                CreatedBy = commentModel.AppUser.UserName,
             };
         }
 
