@@ -51,6 +51,7 @@ namespace api.Repository
 
         public async Task<Comment?> UpdateAsync(int commentId, Comment comment)
         {
+            // Ensures that AppUser is loaded when existingComment is retrieved. This prevents AppUser from being null when you convert existingComment to a CommentDto.
             var existingComment = await _context.Comments.Include(a=>a.AppUser).FirstOrDefaultAsync(c=>c.Id == commentId);
             if (existingComment == null)
             {
